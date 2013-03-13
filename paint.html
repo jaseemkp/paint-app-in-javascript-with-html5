@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+<head>
+<title>Paint Application</title>
+<style type="text/css">  
+#canvas, #tempCanvas {position: absolute;left:250px;top:55px;border: 2px solid black;cursor: crosshair;}
+#rect{position: absolute;left:305px;top:670px;}
+#cir{position: absolute;left:410px;top:670px;}
+#clr{position: absolute;left:480px;top:670px;}
+#tab1{position: absolute;left:550px;top:670px;}
+#lab1{position: absolute;left:760px;top:675px;}
+#lab2{position: absolute;left:820px;top:675px;}
+h1{position: absolute;left:480px;top:0px;}
+</style>
+</head>
+<body>
+    <h1>PAINT APPLICATION</h1>
+    <canvas id="canvas" width="800" height="600" style=" background-color: #ffffff; z-index: 0 "  ></canvas>
+    <canvas id="tempCanvas" width="800" height="600"  style="z-index: 1"></canvas>
+
+    <button id="rect" type="button" onclick="curr_tool('rectangle')"> RECTANGLE</button>
+    <button id="cir" type="button" onclick="curr_tool('circle')">CIRCLE</button>
+    <button id="clr" type="button" onclick="clears()">CLEAR</button>
+
+    <label id=lab1>Fill:<input type="checkbox" id="fill"/></label>
+    <label id=lab2>Outline:<input type="checkbox" id="outline" checked="checked"/></label>
+
+  <table id="tab1" >
+   <tr>
+    <td><button onclick="color('#000000')" style="background-color: #000000; height: 20px; width: 20px;"></button></td>
+    <td><button onclick="color('#ff0000')" style="background-color: #ff0000; height: 20px; width: 20px;"></button></td>
+    <td><button onclick="color('#ff7f00')" style="background-color: #ff7f00; height: 20px; width: 20px;"></button></td>
+    <td><button onclick="color('#ffff00')" style="background-color: #ffff00; height: 20px; width: 20px;"></button></td>
+    <td><button onclick="color('brown')" style="background-color: brown; height: 20px; width: 20px;"></button></td>
+    <td><button onclick="color('#008800')" style="background-color: #008800; height: 20px; width: 20px;"></button></td>
+    <td><button onclick="color('#0000ff')" style="background-color: #0000ff; height: 20px; width: 20px;"></button></td>
+    <td><button onclick="color('#8b00ff')" style="background-color: #8b00ff; height: 20px; width: 20px;"></button></td>
+    </tr>
+  </table>
+
+ <script>
+  var board = document.getElementById("canvas");
+  var tmp_board = document.getElementById("tempCanvas");
+  b_width = board.width;
+  b_height = board.height;
+  var ctx = board.getContext("2d");
+  var tmp_ctx = tmp_board.getContext("2d");
+  var x ;
+  var y ;
+  var hold = false;
+  var fill = false;
+  var stroke = true;
+  var tool = 'rectangle';
+
+  function curr_tool(selected){tool = selected;}
+  function attributes(){
+    if (document.getElementById("fill").checked)
+      fill = true;
+    else
+      fill = false;
+    if (document.getElementById("outline").checked)
+      stroke = true;
+    else
+      stroke = false;
+  }
+  function clears(){
+    ctx.clearRect(0, 0, b_width, b_height);
+  }
+  function color(scolor){ 
+   tmp_ctx.strokeStyle = scolor;
+   if (document.getElementById("fill").checked)
+      tmp_ctx.fillStyle =  scolor; 
+  }
+
+  tmp_board.onmousedown = function(e) {
+        attributes();
+        x = e.pageX - this.offsetLeft;
+        y = e.pageY -this.offsetTop;
+        hold = true;
+        begin_x = x;
+        begin_y = y;
+        tmp_ctx.beginPath();
+        tmp_ctx.moveTo(begin_x, begin_y);    
+  }
+
+  tmp_board.onmousemove = function(e) {
+        if (x == null || y == null) {
+          return;
+        }
+        if(hold){
+       
+        x = e.pageX - this.offsetLeft;
+        y = e.pageY - this.offsetTop;
+        Draw();
+        }
+      }
+     
+  tmp_board.onmouseup = function(e) {
+        ctx.drawImage(tmp_board,0, 0);
+        tmp_ctx.clearRect(0, 0, tmp_board.width, tmp_board.height);
+        x = null;
+        y = null;
+        hold = false;
+  }
+  function Draw(){
+    if (tool == 'rectangle'){
+      tmp_ctx.clearRect(0, 0, b_width, b_height);
+      if(stroke)
+        tmp_ctx.strokeRect(begin_x, begin_y, x-begin_x, y-begin_y);
+      if(fill) 
+        tmp_ctx.fillRect(begin_x, begin_y, x-begin_x, y-begin_y);
+    }
+    else if (tool == 'circle'){             
+      tmp_ctx.clearRect(0, 0, b_width, b_height);
+      tmp_ctx.beginPath();
+      tmp_ctx.arc(begin_x, begin_y, Math.abs(y - begin_y), 0 , 2 * Math.PI, false);
+      if(stroke) 
+        tmp_ctx.stroke();
+      if(fill) 
+        tmp_ctx.fill();
+    }
+   }
+ </script>
+</body>
+</html>
